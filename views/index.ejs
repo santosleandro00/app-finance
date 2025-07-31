@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Financeiro</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="dashboard-body">
+  <div class="sidebar">
+    <h2>💰 FinanceApp</h2>
+    <ul>
+      <li><a href="/">📊 Dashboard</a></li>
+      <li><a href="/logout">🚪 Sair</a></li>
+    </ul>
+  </div>
+
+  <div class="main">
+    <header>
+      <h1>Bem-vindo, <%= username %>!</h1>
+      <form method="GET" action="/" class="filter-form">
+        <label>De: <input type="date" name="startDate" value="<%= startDate || '' %>"></label>
+        <label>Até: <input type="date" name="endDate" value="<%= endDate || '' %>"></label>
+        <button type="submit">Filtrar</button>
+      </form>
+    </header>
+
+    <section class="summary">
+      <div class="card entrada">
+        <h3>Entradas</h3>
+        <p>R$ <%= totalEntradas.toFixed(2) %></p>
+      </div>
+      <div class="card saida">
+        <h3>Saídas</h3>
+        <p>R$ <%= totalSaidas.toFixed(2) %></p>
+      </div>
+      <div class="card saldo">
+        <h3>Saldo</h3>
+        <p>R$ <%= saldo.toFixed(2) %></p>
+      </div>
+    </section>
+
+    <section class="form-add">
+      <form method="POST" action="/add">
+        <input type="date" name="date" required>
+        <input type="text" name="description" placeholder="Descrição" required>
+        <input type="text" name="category" placeholder="Categoria" required>
+        <select name="type">
+          <option value="entrada">Entrada</option>
+          <option value="saida">Saída</option>
+        </select>
+        <label><input type="checkbox" name="fixed"> Fixa</label>
+        <label><input type="checkbox" name="paid"> Paga</label>
+        <input type="number" step="0.01" name="amount" placeholder="Valor" required>
+        <button type="submit">Adicionar</button>
+      </form>
+    </section>
+
+    <section class="transactions">
+      <h2>Transações</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th>Fixa</th><th>Paga</th><th>Valor</th><th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% registros.forEach(r => { %>
+            <tr class="<%= r.type %> <%= r.paid ? 'pago' : 'nao-pago' %>">
+              <td><%= r.date %></td>
+              <td><%= r.description %></td>
+              <td><%= r.category %></td>
+              <td><%= r.type %></td>
+              <td><%= r.fixed ? 'Sim' : 'Não' %></td>
+              <td>
+                <form method="POST" action="/toggle-paid/<%= r.id %>" style="display:inline">
+                  <button class="btn-paid" type="submit"><%= r.paid ? '✅' : '❌' %></button>
+                </form>
+              </td>
+              <td>R$ <%= r.amount.toFixed(2) %></td>
+              <td>
+                <a href="/edit/<%= r.id %>">✏️</a>
+                <form method="POST" action="/delete/<%= r.id %>" style="display:inline">
+                  <button class="btn-delete" type="submit">🗑️</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </section>
+  </div>
+</body>
+</html>
